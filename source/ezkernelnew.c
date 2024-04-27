@@ -2097,8 +2097,20 @@ u32 Get_savefilesize(BYTE saveMODE)
 	{
 		case 0x00:savefilesize=0x0;break;//no save
 		case 0x11:savefilesize=0x8000;break;//SRAM_TYPE 32k
-		case 0x21:savefilesize=0x200;break;//EEPROM_TYPE 512
-		case 0x22:savefilesize=0x2000;break;//EEPROM_TYPE 8k	
+		case 0x21://EEPROM_TYPE 512
+			savefilesize=0x200;
+			if ((GAMECODE[0] == 'F') && ((GAMECODE[3] == 'E') || (GAMECODE[3] == 'P') || (GAMECODE[3] == 'J')))
+			{
+				saveMODE = 0x11; //Override save type if a Classic NES or Famicom Mini title is detected
+			}
+			break;
+		case 0x22://EEPROM_TYPE 8k	
+			savefilesize=0x2000;
+			if ((GAMECODE[0] == 'F') && ((GAMECODE[3] == 'E') || (GAMECODE[3] == 'J')))
+			{
+				saveMODE = 0x11; //Override save type if a Classic NES or Famicom Mini title is detected
+			}
+			break;
 		case 0x23:savefilesize=0x2000;break;//EEPROM_TYPE v125 v126 must use 8k
 		case 0x32:savefilesize=0x10000;break;//FLASH_TYPE 64k
 		case 0x33:savefilesize=0x10000;break;//FLASH512_TYPE 64k	
