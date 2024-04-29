@@ -430,7 +430,8 @@ void IWRAM_CODE PatchInternal(u32* Data,int iSize,u32 offset)
   {
     switch(Data[ii])
     {
-      case 0x3007FFC: // IRQ handler
+		case 0x3007FFC: // IRQ handler
+		case 0x3FFFFFC: // IRQ handler
         {
           Add2(ii, 0x3007FF4);//0x3007FFC��λ��
         }
@@ -778,7 +779,7 @@ void GBApatch_PSRAM(u32* address,int filesize)//Only once
 	CheckNes(address);
 	PatchNes(address);
 	PatchDragonBallZ(address);
-	//Check_Fire_Emblem();
+	Patch_somegame(address);
 	
 	if( (gl_rts_on==1) && (gl_cheat_on == 0)  && (gl_reset_on == 0)  && (gl_sleep_on == 0)  ) {
 		spend_address = Get_spend_address(address);
@@ -825,7 +826,7 @@ void GBApatch_NOR(u32* address,int filesize,u32 offset)
   }
 	PatchNes(address);
 	PatchDragonBallZ(address);
-	//Check_Fire_Emblem();
+	Patch_somegame(address);
 
 	if( (gl_rts_on==1) && (gl_cheat_on == 0)  && (gl_reset_on == 0)  && (gl_sleep_on == 0)  ) {
 		Patch_RTS_only(address);		
@@ -1134,6 +1135,7 @@ u32 use_internal_engine(u8 gamecode[])
 {
 	u32 i;
 	u32 count0x3007FFC=0;
+	u32 result=0;
 	
 	g_Offset = 0;
 	
@@ -1144,11 +1146,13 @@ u32 use_internal_engine(u8 gamecode[])
 
 		if( ((vu32*)pReadCache)[i] == *(vu32*)gamecode )
 		{				
+			result =1;
 			break;
 		}
 		i += (count0x3007FFC+1);
 	}	
-		
+	if(result==0)	return 0;
+	
 	#ifdef DEBUG
 		//DEBUG_printf("%d: %X VS %X %x",i,((vu32*)pReadCache)[i],*(vu32*)gamecode,count0x3007FFC);
 		//wait_btn();	
@@ -1159,7 +1163,7 @@ u32 use_internal_engine(u8 gamecode[])
   {
       Add2(((vu32*)pReadCache)[i+ii], 0x3007FF4);//0x3007FFC offset
   }
-	return 1;
+	return result;
 }
 //------------------------------------------------------------------
 void Patch_SpecialROM_sleepmode(void)
@@ -1305,6 +1309,24 @@ void Patch_SpecialROM_sleepmode(void)
 	case 0x45534341://2117 - Casper(US)
 		Add2(0xAD64/4, 0x494D6345);
 		break;
+	}
+}
+//------------------------------------------------------------------
+void Patch_somegame(u32 *Data)
+{
+	u32 size = 0x7FF0;
+	if( *(u32*)GAMECODE == 0x50424732 )
+	{
+  	for(u32 ii=0;ii<0x100;ii++)
+  	{
+   	 if(0x3000000==Data[ii])
+    	{
+    		if(0x8000 ==Data[ii+1] )
+    		{
+    			Write((ii+1)*4,(u8*)&size,4 );
+    		}
+    	}
+		}
 	}
 }
 //------------------------------------------------------------------
