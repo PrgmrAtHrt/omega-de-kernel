@@ -70,22 +70,7 @@ hookInjectFunc:
 	beq 2f
 	cmp r1, r2
 	bne 1b
-2:	
-	ldr r0, enableAddon
-	teq r0, #0
-	beq 4f
-	mov r0, #0x06000000
-	add r1, r0, #0x7B00
-	ldr r2, irqInstruction
-3:
-	ldr r3, [r0], #4
-	cmp r2, r3
-	subeq r3, #8
-	streq r3, [r0, #-4]
-	beq 4f
-	cmp r0, r1
-	bne 3b
-4:
+2:
 	pop {r0 - r4}
 	ldmia r5!, {r9, r10, pc}
 hookAddr:
@@ -94,10 +79,6 @@ hookCodeLoc:
 	.word 0x0
 mirrorFix:
 	.word 0x08A14004
-enableAddon:
-	.word 0
-irqInstruction:
-	.word 0xE5821FFC
 hookInjectFuncEnd:
 @---------------------------------
 .arm
